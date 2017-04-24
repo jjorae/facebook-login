@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Facebook Login JavaScript Example</title>
+<meta charset="UTF-8">
+<script src="//code.jquery.com/jquery.min.js"></script>
+</head>
+<body>
+	<script>
+		// FB.getLoginStatus() 결과 콜백 함수
+		function statusChangeCallback(response) {
+			if (response.status === 'connected') { // 페이스북과 앱에 같이 로그인되어 있다.
+				//testAPI();
+				console.log('Logged ' + ' this app.');
+			} else if (response.status === 'not_authorized') { // 페이스북에는 로그인 되어있으나, 앱에는 로그인 되어있지 않다.
+				console.log('Not authorize ' + ' this app.');
+			} else { // 페이스북에 로그인이 되어있지 않아서, 앱에 로그인 되어있는지 불명확하다.
+				console.log('Please log ' + 'into this app.');
+			}
+		}
+
+		// 로그인 버튼 클릭하면 실행
+		function checkLoginState() {
+			FB.getLoginStatus(function(response) {
+				statusChangeCallback(response);
+			});
+		}
+
+		window.fbAsyncInit = function() {
+			FB.init({
+				appId : '837672403049614',
+				cookie : true, // enable cookies to allow the server to access 
+				// the session
+				xfbml : true, // parse social plugins on this page
+				version : 'v2.8' // use graph api version 2.8
+			});
+
+			FB.getLoginStatus(function(response) {
+				statusChangeCallback(response);
+			});
+
+		};
+
+		// Load the SDK asynchronously
+		(function(d, s, id) {
+			var js, fjs = d.getElementsByTagName(s)[0];
+			if (d.getElementById(id))
+				return;
+			js = d.createElement(s);
+			js.id = id;
+			js.src = "//connect.facebook.net/en_US/sdk.js";
+			fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));
+
+		// 로그인 성공 시 호출할 함수
+		function testAPI() {
+			FB.api('/me', {fields: 'email,name'}, function(response) {
+				console.log(JSON.stringify(response));
+				console.log('Successful login for: ' + response.name);
+				document.getElementById('status').innerHTML = 'Thanks for logging in, ' + response.name + '!';
+			});
+		}
+		
+		function login() {
+			FB.login(function(response) { // response 처리
+				console.log('login response : ' + JSON.stringify(response));
+				if (response.status === 'connected') { // 페이스북과 앱에 같이 로그인되어 있다.
+					$.get( "/test", { accessToken: response.authResponse.accessToken }, function(data) {
+						alert(data);
+					} );
+					//testAPI();
+				} else if (response.status === 'not_authorized') { // 페이스북에는 로그인 되어있으나, 앱에는 로그인 되어있지 않다.
+				} else { // 페이스북에 로그인이 되어있지 않아서, 앱에 로그인 되어있는지 불명확하다.
+					console.log('Please log ' + 'into this app.');
+				}
+			}, {scope: 'public_profile,email'});
+		}
+	</script>
+
+<input type="button" name="mylogin" value="mylogin" onClick="login()">
+	<div id="status"></div>
+
+</body>
+</html>
